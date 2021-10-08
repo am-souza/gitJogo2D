@@ -5,53 +5,45 @@ using UnityEngine;
 public class Dinheiro : MonoBehaviour
 {
 
-    public float velocidade;
+    Vector2 yVelocity;
 
-    public float forcaPulo;
-    private int qtdPulos;
-    const int MAX_PULOS = 1;
+    float maxHeight=1f;
+    float timeToPeak= 0.3f;
 
+    float jumpSpeed;
+    float gravity;
+
+    float groundPosition = 0;
+    bool isGrounded = false;
 
     // Start is called before the first frame update
     void Start()
     {
-        this.qtdPulos = MAX_PULOS;
-        
+        gravity = (2 *  maxHeight) / Mathf.Pow(timeToPeak, 2);
+        jumpSpeed = gravity * timeToPeak;
+        groundPosition = transform.position.y;
     }
 
     // Update is called once per frame
     void Update()
     {
+        
+        yVelocity +=  gravity  *  Time.deltaTime  * Vector2.down;
 
-        if (Input.GetKey(KeyCode.D))        
-        {
-            Vector3 posicao = this.transform.position;
-            posicao.x += velocidade;
-            this. transform.position = posicao;
-        }
-        if (Input.GetKey(KeyCode.A))        
-        {
-            Vector3 posicao = this.transform.position;
-            posicao.x -= velocidade;
-            this. transform.position = posicao;
-        }
-        if (Input.GetKey(KeyCode.W) && this.qtdPulos > 0)
-        {
-            this.qtdPulos--;
-            Vector2 forca = new Vector2(0f, this.forcaPulo);
-            this.GetComponent<Rigidbody2D>().AddForce(forca, ForceMode2D.Impulse);            
+        if(transform.position.y <= groundPosition){
+            transform.position = new Vector3(transform.position.x, groundPosition, transform.position.z);
+            yVelocity = Vector3.zero;
+            isGrounded = true;
         }
 
 
+
+        if (Input.GetKeyDown (KeyCode.Space) && isGrounded){
+            yVelocity = jumpSpeed  * Vector2.up;
+        }
+
+        transform.position += (Vector3)yVelocity * Time.deltaTime;
         
     }
-
-    void OnCollisionEnter2D(Collision2D col)
-    {
-        if(col.collider.CompareTag("chao")){
-            this.qtdPulos = MAX_PULOS;
-        }
-    }
-
-
+    
 }
